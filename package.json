@@ -1,0 +1,17 @@
+{
+  "name": "cock blocker"
+  ,"version": "0.0.1"
+  ,"description": "Multiplayer Tetris"
+  ,"author": "Christopher Fredén <c.freden@gmail.com>"
+  ,"repository": {
+    "type": "git"
+    ,"url": "ssh://offther.ec/var/git/tetris"
+  }
+  ,"dependencies": {
+    "coffee-script": "*"
+    ,"socket.io": "*"
+  }
+  ,"engines": {
+    "node": "0.6.x"
+  }
+}
