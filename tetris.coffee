@@ -72,6 +72,7 @@ class Game extends EventEmitter
 
   _newPice: ->
     @_pice = new Pice pices[Math.round Math.random() * (pices.length-1)]()
+    @lose() if @_collision x:0, y:0
 
   _nextPice: (matrix, offset) ->
     addToMatrix @_field, @_pice._matrix, @_pice.position
@@ -116,9 +117,6 @@ class Game extends EventEmitter
   _checkLines: ->
     for row, nr in @_field
       do (row) =>
-        if nr is 0 and 1 in row # non black block on first line
-          @lose()
-          return
         (return) if 0 in row
         @_clearLine nr
 
@@ -138,8 +136,8 @@ module.exports =
 
 if require.main is module
   chars =
-    0:'\u2588\u2588'
-    1:'\u2591\u2591'
+    0:'\u25A0\u25A0'
+    1:'  '
 
   game = new Game
   game.on 'lost', ->
