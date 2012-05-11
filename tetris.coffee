@@ -16,24 +16,40 @@ tPice = -> [ [1,1,1]
            , [0,1,0] ]
 pices = [ jPice, lPice, oPice, iPice, zPice, sPice, tPice ]
 
+matrixCollision = (m1, m2, offset) ->
+  for row, y in m2
+    for cell, x in row when cell isnt 0
+      if m1[offset.y + y][offset.x + x] isnt 0
+        return true
+  false
+
 addToMatrix = (m1, m2, offset) ->
-    for row, y in m2
-      for cell, x in row when cell isnt 0
-        m1[offset.y + y][offset.x + x] = cell
+  for row, y in m2
+    for cell, x in row when cell isnt 0
+      m1[offset.y + y][offset.x + x] = cell
+
+rotateMatrix = (matrix, r) ->
+  for x in [0..matrix[0].length-1]
+    (matrix[y][x] for y in [matrix.length-1..0])
+
 
 class Pice
-  constructor: (@_matrix) ->
-    @position = x: 4, y: 0
+  constructor: (@_matrix, @position) ->
+    @position ?= x: 4, y: 0
 
   rotate: (r) ->
-    @_matrix = for x in [0..@_matrix[0].length-1]
-      (@_matrix[y][x] for y in [@_matrix.length-1..0])
+    @_matrix = rotateMatrix @_matrix, r
 
   getBounds: ->
+    width = @_matrix[0].length
+    height = @_matrix.length
     w: @position.x
     n: @position.y
-    e: @position.x + @_matrix[0].length
-    s: @position.y + @_matrix.length
+    e: @position.x + width
+    s: @position.y + height
+    width: width
+    height: height
+
 
 class Game extends EventEmitter
   constructor: ->
@@ -51,61 +67,52 @@ class Game extends EventEmitter
     @stop()
     @.emit 'lost'
 
-
   getField: ->
     (row.concat() for row in @_field)
 
   _newPice: ->
     @_pice = new Pice pices[Math.round Math.random() * (pices.length-1)]()
 
-  _collisionX: (pice, move) ->
-    matrix = pice._matrix
-    offset = pice.position
-    for row, y in matrix
-      for cell, x in row when cell isnt 0
-        if @_field[offset.y + y][offset.x + x + move] isnt 0
-          return 0
-    move
-
-  _collisionY: (pice, move) ->
-    if pice.getBounds().s + move > @_field.length
-      return 0
-    matrix = pice._matrix
-    offset = pice.position
-    for row, y in matrix
-      for cell, x in row when cell isnt 0
-        if @_field[offset.y + y + move][offset.x + x] isnt 0
-          return 0
-    move
+  _nextPice: (matrix, offset) ->
+    addToMatrix @_field, @_pice._matrix, @_pice.position
+    @_checkLines()
+    @_newPice()
+    @_draw()
+  
+  _collision: (offset) ->
+    bb = @_pice.getBounds()
+    if bb.s + offset.y > @_field.length
+      true
+    else
+      matrixCollision @_field, @_pice._matrix
+      , {x:bb.w+offset.x, y:bb.n+offset.y}
 
   _moveX: (move) ->
-    moved = @_collisionX @_pice, move
-    @_pice.position.x += moved
-    @_draw()
-    moved
+    if not @_collision {x:move, y:0}
+      @_pice.position.x += move
+      @_draw()
 
   _moveY: (move) ->
-    moved = @_collisionY @_pice, move
-    if moved is 0
-      @_addToField @_pice._matrix, @_pice.position
-      @_newPice()
+    if not @_collision {x:0, y:move}
+      @_pice.position.y += move
+      @_draw()
     else
-      @_pice.position.y += moved
-    @_draw()
-    moved
+      @_nextPice()
 
   _drop: ->
-    m = 1
-    m = @_moveY 1 while m
+    y = 0
+    c = false
+    c = @_collision {x:0, y:++y} while not c
+    if --y > 0
+      @_pice.position.y += y
+      @_nextPice()
 
   rotate: (r) ->
-    @_pice.rotate r
-    @_draw()
+    matrix = rotateMatrix @_pice._matrix, 1
+    if not matrixCollision @_field, matrix, @_pice.position
+      @_pice._matrix = matrix
+      @_draw()
 
-  _addToField: (matrix, offset) ->
-    addToMatrix @_field, matrix, offset
-    @_checkLines()
-  
   _checkLines: ->
     for row, nr in @_field
       do (row) =>
