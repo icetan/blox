@@ -1,4 +1,4 @@
-EventEmitter = require('evetns').EventEmitter
+EventEmitter = require('events').EventEmitter
 io = require 'socket.io-client'
 
 class Client extends EventEmitter
@@ -7,9 +7,11 @@ class Client extends EventEmitter
   constructor: (game, addr) ->
     @_players = {}
     @_socket = io.connect addr or 'http://localhost:13337'
-    @_socket.on 'new player', (nick) =>
+    @_socket.on 'new player', (data) =>
+      {nick, field} = data
       remote = @_players[nick] = new RemoteGame @_socket, nick
       @emit 'new player', remote
+      remote.emit 'draw', field if field?
     @_socket.on 'player left', (nick) =>
       @emit 'player left', @_players[nick]
       delete @_players[nick]
@@ -19,7 +21,9 @@ class Client extends EventEmitter
       @_socket.emit 'change', field
     game.on 'clear', (lines) =>
       @_socket.emit 'clear', lines
-    @_socket.emit 'new player', nick: "icetan#{Client.count++}"
+    @_socket.emit 'new player',
+      nick: "icetan#{Client.count++}"
+      field: game._field
 
 
 class RemoteGame extends EventEmitter
@@ -29,6 +33,7 @@ class RemoteGame extends EventEmitter
     socket.on 'change', (nick, field) =>
       @emit 'draw', field if nick is @nick
     socket.on 'clear', (nick, lines) =>
+      console.log "#{nick} cleard #{lines} lines"
       @emit 'clear', lines if nick is @nick
 
 module.exports = Client

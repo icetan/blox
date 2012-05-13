@@ -10,19 +10,20 @@ class UI
 
   constructor: (@game) ->
     @offsetX = UI.offsetX
-    UI.offsetX += 22
-    @game.on 'draw', (field) ->
-      str = (row.join '' for row in field).join('\n')
-      str = str.replace(new RegExp(v, 'g'), char) for v,char of UI.chars
-      process.stdout.cursorTo @offsetX, 0
-      process.stdout.write str
+    UI.offsetX += 24
+    @game.on 'draw', (field) =>
+      for row, y in field
+        line = row.join ''
+        line = line.replace(new RegExp(v, 'g'), char) for v,char of UI.chars
+        process.stdout.cursorTo @offsetX, y
+        process.stdout.write line
 
 
 class Input extends EventEmitter
-  constructor: (@_game) ->
+  constructor: ->
     rint = readline.createInterface process.stdin, {}
-    rint.input.on 'keypress', (char, key) ->
-      @emit key if key?
+    rint.input.on 'keypress', (char, key) =>
+      @emit key.name if key?
     tty.setRawMode true
 
 module.exports = {UI, Input}

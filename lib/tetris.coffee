@@ -126,6 +126,7 @@ class Game extends EventEmitter
         (return) if 0 in row
         @_clearLine nr
         lines++
+    console.log "cleard #{lines} lines"
     @emit 'clear', lines if lines
 
   _clearLine: (nr) ->
@@ -134,7 +135,8 @@ class Game extends EventEmitter
     
   addLines: (nr) ->
     @_field.splice 0, nr
-    @_field.push brokenLine() for x in [0..nr]
+    @_field.push brokenLine() for x in [0...nr]
+    console.log "field height #{@_field.length}"
 
   _draw: ->
     field = @getField()
@@ -162,6 +164,6 @@ if require.main is module
     remote.on 'clear', (lines) ->
       game.addLines lines
 
-  input = new Input game
+  input = new Input
   input.on k, v for k, v of keys
   game.start()
