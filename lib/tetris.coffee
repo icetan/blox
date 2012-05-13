@@ -1,6 +1,10 @@
+Client = require './client'
+{UI, Input} = require './ui'
+
 EventEmitter = require('events').EventEmitter
 
-emptyLine = ->  [0,0,0,0,0,0,0,0,0,0]
+emptyLine = -> [0,0,0,0,0,0,0,0,0,0]
+brokenLine = -> [1,1,1,1,1,1,0,1,1,1]
 jPice = -> [ [1,1,1]
            , [0,0,1] ]
 lPice = -> [ [1,1,1]
@@ -65,7 +69,7 @@ class Game extends EventEmitter
 
   lose: ->
     @stop()
-    @.emit 'lost'
+    @emit 'lost'
 
   getField: ->
     (row.concat() for row in @_field)
@@ -77,6 +81,7 @@ class Game extends EventEmitter
   _nextPice: (matrix, offset) ->
     addToMatrix @_field, @_pice._matrix, @_pice.position
     @_checkLines()
+    @emit 'change', @_field
     @_newPice()
     @_draw()
   
@@ -115,15 +120,21 @@ class Game extends EventEmitter
       @_draw()
 
   _checkLines: ->
+    lines = 0
     for row, nr in @_field
       do (row) =>
         (return) if 0 in row
         @_clearLine nr
+        lines++
+    @emit 'clear', lines if lines
 
   _clearLine: (nr) ->
     @_field.splice nr, 1
     @_field.splice 0, 0, emptyLine()
-    @emit 'clear', nr
+    
+  addLines: (nr) ->
+    @_field.splice 0, nr
+    @_field.push brokenLine() for x in [0..nr]
 
   _draw: ->
     field = @getField()
@@ -135,19 +146,7 @@ module.exports =
   Game: Game
 
 if require.main is module
-  chars =
-    0:'\u25A0\u25A0'
-    1:'  '
-
   game = new Game
-  game.on 'lost', ->
-    process.exit 0
-  game.on 'draw', (field) ->
-    str = (row.join '' for row in field).join('\n')
-    str = str.replace(new RegExp(v, 'g'), char) for v,char of chars
-    process.stdout.cursorTo 0, 0
-    process.stdout.write str
-
   keys =
     k: -> game.rotate 1
     j: -> game._moveY 1
@@ -155,11 +154,14 @@ if require.main is module
     l: -> game._moveX 1
     i: -> game._drop()
     escape: -> process.exit()
-  rint = require('readline').createInterface process.stdin, {}
-  rint.input.on 'keypress', (char, key) ->
-    if key?
-      keys[key.name]?()
+  new UI game
 
-  require('tty').setRawMode true
+  client = new Client game
+  client.on 'new player', (remote) ->
+    new UI remote
+    remote.on 'clear', (lines) ->
+      game.addLines lines
 
+  input = new Input game
+  input.on k, v for k, v of keys
   game.start()
