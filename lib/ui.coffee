@@ -17,6 +17,9 @@ class UI
         line = line.replace(new RegExp(v, 'g'), char) for v,char of UI.chars
         process.stdout.cursorTo @offsetX, y
         process.stdout.write line
+    @game.on 'game over', =>
+      process.stdout.cursorTo @offsetX, 10
+      process.stdout.write '------GAME OVER-----'
 
 
 class Input extends EventEmitter

@@ -8,27 +8,29 @@ class Server
   
   _initListeners: ->
     @io.sockets.on 'connection', (socket) =>
-      socket.on 'new player', (data) ->
+      for nick, field of @players
+        console.log "sending player info for #{nick}"
+        socket.emit 'new player', {nick, field}
+      socket.on 'new player', (data) =>
         {nick, field} = data
+        @players[nick] = field
         socket.set 'nick', nick, ->
           socket.broadcast.emit 'new player', data
       socket.on 'change', (field) =>
         socket.get 'nick', (err, nick) =>
           @players[nick] = field
           socket.broadcast.emit 'change', nick, field
-      socket.on 'lose', ->
-        socket.set 'lost', true, ->
-          socket.get 'nick', (err, nick) ->
-            socket.broadcast.emit 'lose', nick
+      socket.on 'game over', ->
+        socket.set 'lost', true
+        socket.get 'nick', (err, nick) ->
+          socket.broadcast.emit 'game over', nick
       socket.on 'clear', (lines) ->
         socket.get 'nick', (err, nick) ->
           socket.broadcast.emit 'clear', nick, lines
       socket.on 'disconnect', =>
         socket.get 'nick', (err, nick) =>
-          delete @player[nick]
+          delete @players[nick]
           socket.broadcast.emit 'player left', nick
-      for nick, field of @players
-        socket.emit 'new player', {nick, field}
 
 module.exports = {
   Server,

@@ -57,8 +57,12 @@ class Pice
 
 class Game extends EventEmitter
   constructor: ->
-    @_field = (emptyLine() for x in [0..20])
-    @_newPice()
+    @reset()
+
+  reset: ->
+    @_pice = null
+    @_field = (emptyLine() for x in [0...20])
+    @_nextPice()
 
   start: (speed) ->
     @stop()
@@ -67,23 +71,23 @@ class Game extends EventEmitter
   stop: ->
     clearInterval @_timer
 
-  lose: ->
+  gameOver: ->
     @stop()
-    @emit 'lost'
+    @emit 'game over'
 
   getField: ->
     (row.concat() for row in @_field)
 
-  _newPice: ->
+  _nextPice: ->
+    if @_pice?
+      addToMatrix @_field, @_pice._matrix, @_pice.position
+      @_checkLines()
+      @emit 'change', @_field
     @_pice = new Pice pices[Math.round Math.random() * (pices.length-1)]()
-    @lose() if @_collision x:0, y:0
-
-  _nextPice: (matrix, offset) ->
-    addToMatrix @_field, @_pice._matrix, @_pice.position
-    @_checkLines()
-    @emit 'change', @_field
-    @_newPice()
-    @_draw()
+    if @_collision {x:0, y:0}
+      @gameOver()
+    else
+      @_draw()
   
   _collision: (offset) ->
     bb = @_pice.getBounds()
@@ -158,7 +162,7 @@ if require.main is module
     escape: -> process.exit()
   new UI game
 
-  client = new Client game
+  client = new Client process.argv[2], game
   client.on 'new player', (remote) ->
     new UI remote
     remote.on 'clear', (lines) ->
