@@ -1,5 +1,5 @@
 Client = require './client'
-{UI, Input} = require './ui'
+{MainUI, GameUI, Input} = require './ui'
 
 EventEmitter = require('events').EventEmitter
 
@@ -130,7 +130,6 @@ class Game extends EventEmitter
         (return) if 0 in row
         @_clearLine nr
         lines++
-    console.log "cleard #{lines} lines"
     @emit 'clear', lines if lines
 
   _clearLine: (nr) ->
@@ -140,7 +139,6 @@ class Game extends EventEmitter
   addLines: (nr) ->
     @_field.splice 0, nr
     @_field.push brokenLine() for x in [0...nr]
-    console.log "field height #{@_field.length}"
 
   _draw: ->
     field = @getField()
@@ -160,13 +158,16 @@ if require.main is module
     l: -> game._moveX 1
     i: -> game._drop()
     escape: -> process.exit()
-  new UI game
+  ui = new MainUI
+  ui.addGame game
 
   client = new Client process.argv[2], game
   client.on 'new player', (remote) ->
-    new UI remote
+    ui.addGame remote
     remote.on 'clear', (lines) ->
       game.addLines lines
+  client.on 'player left', (remote) ->
+    ui.removeGame remote
 
   input = new Input
   input.on k, v for k, v of keys
