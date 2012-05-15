@@ -150,6 +150,12 @@ module.exports =
   Game: Game
 
 if require.main is module
+  nick = process.argv[2]
+  addr = process.argv[3]
+  if not addr?
+    # if no URL is given, start a server
+    require('./server').listen 13337
+    addr = 'http://localhost:13337'
   game = new Game
   keys =
     k: -> game.rotate 1
@@ -161,7 +167,7 @@ if require.main is module
   ui = new MainUI
   ui.addGame game
 
-  client = new Client process.argv[2], game
+  client = new Client nick, game, addr
   client.on 'new player', (remote) ->
     ui.addGame remote
     remote.on 'clear', (lines) ->

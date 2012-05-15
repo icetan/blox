@@ -6,7 +6,7 @@ class Client extends EventEmitter
 
   constructor: (@nick, game, addr) ->
     @_players = {}
-    @_socket = io.connect addr or 'http://localhost:13337'
+    @_socket = io.connect addr
     @_socket.on 'new player', (data) =>
       {nick, field} = data
       remote = new RemoteGame @_socket, nick
@@ -24,9 +24,10 @@ class Client extends EventEmitter
       @_socket.emit 'change', field
     game.on 'clear', (lines) =>
       @_socket.emit 'clear', lines
-    @_socket.emit 'new player',
-      nick: @nick
-      field: game._field
+    @_socket.on 'connect', =>
+      @_socket.emit 'new player',
+        nick: @nick
+        field: game._field
 
 
 class RemoteGame extends EventEmitter

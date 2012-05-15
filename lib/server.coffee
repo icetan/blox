@@ -37,4 +37,6 @@ module.exports = {
   listen: (port) -> new Server port
 }
 
-new Server 13337
+if require.main is module
+  port = parseInt process.argv[2]
+  new Server port
