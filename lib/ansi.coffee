@@ -81,3 +81,5 @@ module.exports =
   bgmagenta:      ansi background codes.colors.magenta
   bgcyan:         ansi background codes.colors.cyan
   bgwhite:        ansi background codes.colors.white
+
+  style: (code, str) -> "#{code}#{str}#{@reset}"

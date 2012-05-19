@@ -2,6 +2,8 @@ EventEmitter = require('events').EventEmitter
 readline = require 'readline'
 tty = require 'tty'
 
+ansi = require './ansi'
+
 class MainUI
   constructor: ->
     @games = []
@@ -25,8 +27,13 @@ class MainUI
 
 class GameUI
   @chars:
-    0:'\u2588\u2588'
-    1:'  '
+    0: '  '
+    1: ansi.style ansi.bgred, '  '
+    2: ansi.style ansi.bggreen, '  '
+    3: ansi.style ansi.bgyellow, '  '
+    4: ansi.style ansi.bgblue, '  '
+    5: ansi.style ansi.bgmagenta, '  '
+    6: ansi.style ansi.bgcyan, '  '
 
   constructor: (@game) ->
     @field = [[]]
@@ -34,8 +41,7 @@ class GameUI
     @game.on 'draw', (@draw = (field) =>
       field ?= @field
       for row, y in field
-        line = row.join ''
-        line = line.replace(new RegExp(v, 'g'), char) for v,char of GameUI.chars
+        line = (GameUI.chars[x] for x in row).join ''
         process.stdout.cursorTo @offsetX, y
         process.stdout.write line
       @field = field
