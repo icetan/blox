@@ -28,12 +28,13 @@ class MainUI
 class GameUI
   @chars:
     0: '  '
-    1: ansi.style ansi.bgred, '  '
-    2: ansi.style ansi.bggreen, '  '
-    3: ansi.style ansi.bgyellow, '  '
-    4: ansi.style ansi.bgblue, '  '
-    5: ansi.style ansi.bgmagenta, '  '
-    6: ansi.style ansi.bgcyan, '  '
+    1: ansi.style ansi.bgwhite, '  '
+    2: ansi.style ansi.bgmagenta, '  '
+    3: ansi.style ansi.bgblue, '  '
+    4: ansi.style ansi.bgred, '  '
+    5: ansi.style ansi.bgcyan, '  '
+    6: ansi.style ansi.bggreen, '  '
+    7: ansi.style ansi.bgyellow, '  '
 
   constructor: (@game) ->
     @field = [[]]

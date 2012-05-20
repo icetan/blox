@@ -10,6 +10,7 @@
   ,"dependencies": {
     "coffee-script": "*"
     ,"socket.io": "*"
+    ,"socket.io-client": "*"
   }
   ,"engines": {
     "node": "0.6.x"

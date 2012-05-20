@@ -2,7 +2,10 @@
 EventEmitter = require('events').EventEmitter
 
 emptyLine = -> [0,0,0,0,0,0,0,0,0,0]
-brokenLine = -> [1,1,1,1,1,1,0,1,1,1]
+brokenLine = ->
+  l = [1,1,1,1,1,1,1,1,1,1]
+  l[Math.round Math.random() * (l.length-1)] = 0
+  l
 jPice = -> [ [1,1,1]
            , [0,0,1] ]
 lPice = -> [ [2,2,2]
@@ -14,8 +17,8 @@ zPice = -> [ [5,5,0]
            , [0,5,5] ]
 sPice = -> [ [0,6,6]
            , [6,6,0] ]
-tPice = -> [ [6,6,6]
-           , [0,6,0] ]
+tPice = -> [ [7,7,7]
+           , [0,7,0] ]
 pices = [ jPice, lPice, oPice, iPice, zPice, sPice, tPice ]
 
 matrixCollision = (m1, m2, offset) ->
@@ -55,6 +58,7 @@ class Pice
 
 class Game extends EventEmitter
   constructor: ->
+    @running = no
     @reset()
 
   reset: ->
@@ -65,9 +69,11 @@ class Game extends EventEmitter
   start: (speed) ->
     @stop()
     @_timer = setInterval (=> @_moveY 1), speed or 600
+    @running = yes
 
   stop: ->
     clearInterval @_timer
+    @running = no
 
   gameOver: ->
     @stop()
@@ -80,7 +86,7 @@ class Game extends EventEmitter
     if @_pice?
       addToMatrix @_field, @_pice._matrix, @_pice.position
       @_checkLines()
-      @emit 'change', @_field
+    @emit 'change', @_field
     @_pice = new Pice pices[Math.round Math.random() * (pices.length-1)]()
     if @_collision {x:0, y:0}
       @gameOver()
@@ -108,6 +114,7 @@ class Game extends EventEmitter
       @_nextPice()
 
   drop: ->
+    (return) if not @running
     y = 0
     c = false
     c = @_collision {x:0, y:++y} while not c
@@ -116,14 +123,15 @@ class Game extends EventEmitter
       @_nextPice()
 
   rotate: ->
+    (return) if not @running
     matrix = rotateMatrix @_pice._matrix
     if not matrixCollision @_field, matrix, @_pice.position
       @_pice._matrix = matrix
       @_draw()
 
-  down: -> @_moveY 1
-  left: -> @_moveX -1
-  right: -> @_moveX 1
+  down: -> @_moveY 1 if @running
+  left: -> @_moveX -1 if @running
+  right: -> @_moveX 1 if @running
 
   _checkLines: ->
     lines = 0
@@ -137,10 +145,14 @@ class Game extends EventEmitter
   _clearLine: (nr) ->
     @_field.splice nr, 1
     @_field.splice 0, 0, emptyLine()
+    @emit 'change', @_field
+    @_draw()
     
   addLines: (nr) ->
     @_field.splice 0, nr
     @_field.push brokenLine() for x in [0...nr]
+    @emit 'change', @_field
+    @_draw()
 
   _draw: ->
     field = @getField()
