@@ -2,6 +2,7 @@ socketIO = require 'socket.io'
 
 class Server
   constructor: (port) ->
+    @playerCount = 0
     @playersLeft = []
     @players = {}
     @io = socketIO.listen port
@@ -10,13 +11,14 @@ class Server
   _initListeners: ->
     @io.sockets.on 'connection', (socket) =>
       for nick, field of @players
-        console.log "sending player info for #{nick}"
         socket.emit 'new player', {nick, field}
       socket.on 'new player', (data) =>
         {nick, field} = data
         @players[nick] = field
+        was = @playerCount++
         socket.set 'nick', nick, =>
           socket.broadcast.emit 'new player', data
+          @newGame() if was < 2 and @playerCount >= 2
       socket.on 'change', (field) =>
         socket.get 'nick', (err, nick) =>
           @players[nick] = field
@@ -25,13 +27,15 @@ class Server
         socket.get 'nick', (err, nick) =>
           socket.broadcast.emit 'game over', nick
           @playersLeft.splice @playersLeft.indexOf(nick), 1
-          console.log "PLAYERS LEFT #{@playersLeft.length}"
-          @gameWonBy @playersLeft[0] if @playersLeft.length is 1
+          if @playersLeft.length is 1
+            @gameWonBy @playersLeft[0]
+            setTimeout (=> @newGame()), 3000
       socket.on 'clear', (lines) ->
         socket.get 'nick', (err, nick) ->
           socket.broadcast.emit 'clear', nick, lines
       socket.on 'disconnect', =>
         socket.get 'nick', (err, nick) =>
+          @playerCount--
           delete @players[nick]
           @playersLeft.splice @playersLeft.indexOf(nick), 1
           socket.broadcast.emit 'player left', nick
@@ -41,7 +45,6 @@ class Server
 
   newGame: ->
     @playersLeft = (nick for field, nick of @players)
-    console.log "PLAYERS LEFT #{@playersLeft.length}"
     @io.sockets.emit 'new game'
 
 
@@ -51,5 +54,5 @@ module.exports = {
 }
 
 if require.main is module
-  port = parseInt process.argv[2]
+  port = parseInt process.argv[2] or 13337
   new Server port
