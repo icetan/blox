@@ -30,22 +30,24 @@ class Server
       socket.on 'game over', =>
         socket.get 'nick', (err, nick) =>
           socket.broadcast.emit 'game over', nick
-          @playersLeft.splice @playersLeft.indexOf(nick), 1
-          if @playersLeft.length is 1
-            @gameWonBy @playersLeft[0]
-            setTimeout (=> @newGame()), 3000
+          @playerLost nick
       socket.on 'clear', (lines) ->
         socket.get 'nick', (err, nick) ->
           socket.broadcast.emit 'clear', nick, lines
       socket.on 'disconnect', =>
         socket.get 'nick', (err, nick) =>
           if nick?
-            console.log "#{nick} PLAYER DISCONNECTING"
             @playerCount--
             delete @players[nick]
-            @playersLeft.splice @playersLeft.indexOf(nick), 1
             socket.broadcast.emit 'player left', nick
+            @playerLost nick
           delete socket
+
+  playerLost: (nick) ->
+    @playersLeft.splice @playersLeft.indexOf(nick), 1
+    if @playersLeft.length is 1
+      @gameWonBy @playersLeft[0]
+      setTimeout (=> @newGame()), 3000
   
   gameWonBy: (nick) ->
     @io.sockets.emit 'game won by', nick
