@@ -27,7 +27,7 @@ class MainUI
 
 class GameUI
   @chars:
-    0: '  '
+    0: ansi.style ansi.bgblack, '  '
     1: ansi.style ansi.bgwhite, '  '
     2: ansi.style ansi.bgmagenta, '  '
     3: ansi.style ansi.bgblue, '  '
@@ -39,22 +39,22 @@ class GameUI
   constructor: (@game) ->
     @field = [[]]
     @offsetX = 0
-    @game.on 'draw', (@draw = (field) =>
-      field ?= @field
-      for row, y in field
-        line = (GameUI.chars[x] for x in row).join ''
-        process.stdout.cursorTo @offsetX, y
-        process.stdout.write line
-      @field = field
-    )
-    @game.on 'game over', (@gameOver = =>
+    @game.on 'draw', (field) => @draw(field)
+    @game.on 'game over', =>
       process.stdout.cursorTo @offsetX, 10
       process.stdout.write '------GAME OVER-----'
-    )
+
+  draw: (field) ->
+    field ?= @field
+    for row, y in field
+      line = (GameUI.chars[x] for x in row).join ''
+      process.stdout.cursorTo @offsetX, y
+      process.stdout.write line
+    @field = field
 
   destroy: ->
-    @game.removeListener 'draw', @draw
-    @game.removeListener 'game over', @gameOver
+    @game.removeAllListeners()
+    @.removeAllListeners()
 
 
 class Input extends EventEmitter
