@@ -2,9 +2,7 @@ Client = require './client'
 {MainUI, GameUI, Input} = require './ui'
 {Game} = require './game'
 
-if require.main is module
-  nick = process.argv[2]
-  addr = process.argv[3]
+start = (nick, addr) ->
   if not addr?
     # if no URL is given, start a server
     server = require('./server').listen 13337
@@ -35,5 +33,11 @@ if require.main is module
 
   input = new Input
   input.on k, v for k, v of keys
-  
-#process.on 'exit', ->
+
+
+module.exports = start
+
+if require.main is module
+  nick = process.argv[2]
+  addr = process.argv[3]
+  start nick, addr

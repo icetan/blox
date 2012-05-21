@@ -15,4 +15,13 @@
   ,"engines": {
     "node": "0.6.x"
   }
+  ,"files": ["js/"]
+  ,"main": "js/blocks.js"
+  ,"bin": {
+    "blocks": "bin/blocks"
+  }
+  ,"scripts": {
+    "start": "node js/server.js"
+    ,"preinstall": "node_modules/coffee-script/bin/cake build"
+  }
 }
