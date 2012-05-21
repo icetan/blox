@@ -41,7 +41,6 @@ class Server
             delete @players[nick]
             socket.broadcast.emit 'player left', nick
             @playerLost nick
-          delete socket
 
   playerLost: (nick) ->
     @playersLeft.splice @playersLeft.indexOf(nick), 1
