@@ -14,11 +14,15 @@ class Server
         socket.emit 'new player', {nick, field}
       socket.on 'new player', (data) =>
         {nick, field} = data
-        @players[nick] = field
-        was = @playerCount++
-        socket.set 'nick', nick, =>
-          socket.broadcast.emit 'new player', data
-          @newGame() if was < 2 and @playerCount >= 2
+        if @players[nick]?
+          socket.emit 'error', "Nick already in use"
+          socket.disconnect()
+        else
+          @players[nick] = field
+          was = @playerCount++
+          socket.set 'nick', nick, =>
+            socket.broadcast.emit 'new player', data
+            @newGame() if was < 2 and @playerCount >= 2
       socket.on 'change', (field) =>
         socket.get 'nick', (err, nick) =>
           @players[nick] = field
@@ -35,10 +39,13 @@ class Server
           socket.broadcast.emit 'clear', nick, lines
       socket.on 'disconnect', =>
         socket.get 'nick', (err, nick) =>
-          @playerCount--
-          delete @players[nick]
-          @playersLeft.splice @playersLeft.indexOf(nick), 1
-          socket.broadcast.emit 'player left', nick
+          if nick?
+            console.log "#{nick} PLAYER DISCONNECTING"
+            @playerCount--
+            delete @players[nick]
+            @playersLeft.splice @playersLeft.indexOf(nick), 1
+            socket.broadcast.emit 'player left', nick
+          delete socket
   
   gameWonBy: (nick) ->
     @io.sockets.emit 'game won by', nick

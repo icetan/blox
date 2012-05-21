@@ -8,7 +8,7 @@ if require.main is module
   if not addr?
     # if no URL is given, start a server
     server = require('./server').listen 13337
-    addr = 'http://localhost:13337'
+    addr = 'localhost'
   game = new Game
   keys =
     s: -> server?.newGame()
@@ -27,7 +27,7 @@ if require.main is module
   ui = new MainUI
   ui.addGame game
 
-  client = new Client nick, game, addr
+  client = new Client nick, game, "http://#{addr}:13337"
   client.on 'new player', (remote) ->
     ui.addGame remote
   client.on 'player left', (remote) ->

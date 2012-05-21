@@ -32,6 +32,8 @@ class Client extends EventEmitter
         field: game._field
     @_socket.on 'disconnect', =>
       @removeRemote nick for nick of @_players
+    @_socket.on 'error', (msg) =>
+      throw "error from server: #{msg}"
     # Listen and send game events to server
     game.on 'game over', =>
       @_socket.emit 'game over'
@@ -39,8 +41,6 @@ class Client extends EventEmitter
       @_socket.emit 'change', field
     game.on 'clear', (lines) =>
       @_socket.emit 'clear', lines
-    process.on 'exit', =>
-      @_socket.emit 'player left', @nick
 
   removeRemote: (nick) ->
     remote = @_players[nick]
