@@ -149,6 +149,7 @@ class Game extends EventEmitter
     @_draw()
     
   addLines: (nr) ->
+    (return) if not @running
     @_field.splice 0, nr
     @_field.push brokenLine() for x in [0...nr]
     @emit 'change', @_field
