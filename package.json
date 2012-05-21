@@ -18,10 +18,10 @@
   ,"files": ["js/"]
   ,"main": "js/blocks.js"
   ,"bin": {
-    "blocks": "bin/blocks"
+    "blocks": "./bin/blocks"
   }
   ,"scripts": {
     "start": "node js/server.js"
-    ,"preinstall": "node_modules/coffee-script/bin/cake build"
+    ,"preinstall": "./node_modules/coffee-script/bin/coffee -o js/ -c lib/ || coffee -o js/ -c lib/ && echo Build successful"
   }
 }
