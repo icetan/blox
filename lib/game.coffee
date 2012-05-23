@@ -39,6 +39,8 @@ rotateMatrix = (matrix) ->
 
 
 class Pice
+  @random: -> new Pice pices[Math.round Math.random() * (pices.length-1)]()
+
   constructor: (@_matrix, @position) ->
     @position ?= x: 4, y: 0
 
@@ -58,12 +60,15 @@ class Pice
 
 class Game extends EventEmitter
   constructor: ->
+    @_maxPices = 1
+    @_pices = []
     @running = no
     @reset()
 
   reset: ->
     @_pice = null
     @_field = (emptyLine() for x in [0...20])
+    @_addPice() for x in [0...@_maxPices]
     @_nextPice()
 
   start: (speed) ->
@@ -82,12 +87,16 @@ class Game extends EventEmitter
   getField: ->
     (row.concat() for row in @_field)
 
+  _addPice: -> @_pices.push Pice.random()
+
   _nextPice: ->
     if @_pice?
       addToMatrix @_field, @_pice._matrix, @_pice.position
       @_checkLines()
     @emit 'change', @_field
-    @_pice = new Pice pices[Math.round Math.random() * (pices.length-1)]()
+    @_addPice()
+    @_pice = @_pices.shift()
+    @emit 'new pice', (pice._matrix for pice in @_pices)
     if @_collision {x:0, y:0}
       @gameOver()
     else

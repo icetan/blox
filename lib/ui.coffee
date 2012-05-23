@@ -22,10 +22,16 @@ class MainUI
         gameUI.destroy()
         @games.splice gameI, 1
       else
-        gameUI.draw()
+        gameUI.drawField()
 
 
 class GameUI
+  @header: -> [ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] ]
   @chars:
     0: ansi.style ansi.bgblack, '  '
     1: ansi.style ansi.bgwhite, '  '
@@ -38,19 +44,30 @@ class GameUI
 
   constructor: (@game) ->
     @field = [[]]
+    @head = GameUI.header()
     @offsetX = 0
-    @game.on 'draw', (field) => @draw(field)
-    @game.on 'game over', =>
-      process.stdout.cursorTo @offsetX, 10
-      process.stdout.write '------GAME OVER-----'
+    @game.on 'draw', (field) => @drawField field
+    @game.on 'new pice', (pices) => @drawHead pices
+    @game.on 'game over', => @draw ['------GAME OVER-----'], 0, 10
 
-  draw: (field) ->
-    field ?= @field
-    for row, y in field
-      line = (GameUI.chars[x] for x in row).join ''
-      process.stdout.cursorTo @offsetX, y
+  draw: (matrix, offsetX, offsetY) ->
+    for row, y in matrix
+      if row instanceof Array
+        line = (GameUI.chars[x] or x for x in row).join ''
+      else
+        line = row
+      process.stdout.cursorTo @offsetX+offsetX, offsetY+y
       process.stdout.write line
+
+  drawField: (field) ->
+    field ?= @field
+    @draw field, 0, @head.length
     @field = field
+
+  drawHead: (pice) ->
+    @draw @head, 0, 0
+    @draw ["#{@game.score or 1337} @ #{@game.level or 666}"], 1, 1
+    @draw pice[0], 1, 3
 
   destroy: ->
     @game.removeAllListeners()
