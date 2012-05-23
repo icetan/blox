@@ -3,6 +3,7 @@ readline = require 'readline'
 tty = require 'tty'
 
 ansi = require './ansi'
+{HandlerMixIn} = require './util'
 
 class MainUI
   constructor: ->
@@ -19,13 +20,13 @@ class MainUI
       gameI = i - (games.length - @games.length)
       gameUI.offsetX = gameI * 24
       if gameUI.game is game
-        gameUI.destroy()
+        gameUI.removeAllHandlers()
         @games.splice gameI, 1
       else
         gameUI.drawField()
 
 
-class GameUI
+class GameUI extends HandlerMixIn
   @chars:
     0: ansi.style ansi.bgblack, '  '
     1: ansi.style ansi.bgwhite, '  '
@@ -39,9 +40,9 @@ class GameUI
   constructor: (@game) ->
     @field = [[]]
     @offsetX = 0
-    @game.on 'draw', (field) => @drawField field
-    @game.on 'new pice', (pices) => @drawHead pices
-    @game.on 'game over', => @draw ['------GAME OVER-----'], 0, 10
+    @handle @game, 'draw', @drawField
+    @handle @game, 'new pice', @drawHead
+    @handle @game, 'game over', -> @draw ['------GAME OVER-----'], 0, 10
 
   draw: (matrix, offsetX, offsetY) ->
     for row, y in matrix
@@ -64,10 +65,6 @@ class GameUI
             '--------------------' ], 0, 0
     @draw ["#{@game.score or 1337} @ #{@game.level or 666}"], 1, 0
     @draw pice[0], 1, 1
-
-  destroy: ->
-    @game.removeAllListeners()
-    @.removeAllListeners()
 
 
 class Input extends EventEmitter
