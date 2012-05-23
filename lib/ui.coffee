@@ -26,12 +26,6 @@ class MainUI
 
 
 class GameUI
-  @header: -> [ [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] ]
   @chars:
     0: ansi.style ansi.bgblack, '  '
     1: ansi.style ansi.bgwhite, '  '
@@ -44,7 +38,6 @@ class GameUI
 
   constructor: (@game) ->
     @field = [[]]
-    @head = GameUI.header()
     @offsetX = 0
     @game.on 'draw', (field) => @drawField field
     @game.on 'new pice', (pices) => @drawHead pices
@@ -61,13 +54,16 @@ class GameUI
 
   drawField: (field) ->
     field ?= @field
-    @draw field, 0, @head.length
+    @draw field, 0, 4
     @field = field
 
   drawHead: (pice) ->
-    @draw @head, 0, 0
-    @draw ["#{@game.score or 1337} @ #{@game.level or 666}"], 1, 1
-    @draw pice[0], 1, 3
+    @draw [ '                    '
+            '                    '
+            '                    '
+            '--------------------' ], 0, 0
+    @draw ["#{@game.score or 1337} @ #{@game.level or 666}"], 1, 0
+    @draw pice[0], 1, 1
 
   destroy: ->
     @game.removeAllListeners()

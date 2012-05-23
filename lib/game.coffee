@@ -42,7 +42,12 @@ class Pice
   @random: -> new Pice pices[Math.round Math.random() * (pices.length-1)]()
 
   constructor: (@_matrix, @position) ->
-    @position ?= x: 4, y: 0
+    @_origMatrix = @_matrix
+    @reset() if not @position?
+
+  reset: ->
+    @_matrix = @_origMatrix
+    @position = x: 4, y: 0
 
   rotate: ->
     @_matrix = rotateMatrix @_matrix
@@ -96,6 +101,7 @@ class Game extends EventEmitter
     @emit 'change', @_field
     @_addPice()
     @_pice = @_pices.shift()
+    @canSwap = yes
     @emit 'new pice', (pice._matrix for pice in @_pices)
     if @_collision {x:0, y:0}
       @gameOver()
@@ -126,7 +132,7 @@ class Game extends EventEmitter
     (return) if not @running
     y = 0
     c = false
-    c = @_collision {x:0, y:++y} while not c
+    c = @_collision {x:0, y:++y} until c
     if --y > 0
       @_pice.position.y += y
       @_nextPice()
@@ -142,6 +148,14 @@ class Game extends EventEmitter
   left: -> @_moveX -1 if @running
   right: -> @_moveX 1 if @running
 
+  swap: ->
+    if @running and @canSwap
+      @canSwap = no
+      @_pice.reset()
+      [@_pice] = @_pices.splice 0, 1, @_pice
+      @emit 'new pice', (pice._matrix for pice in @_pices)
+      @_draw()
+
   _checkLines: ->
     lines = 0
     for row, nr in @_field
@@ -149,7 +163,8 @@ class Game extends EventEmitter
         (return) if 0 in row
         @_clearLine nr
         lines++
-    @emit 'clear', lines if lines
+    if lines > 0
+      @emit 'clear', lines
 
   _clearLine: (nr) ->
     @_field.splice nr, 1

@@ -20,6 +20,7 @@ start = (nick, addr) ->
     h: -> game.left()
     l: -> game.right()
     i: -> game.drop()
+    u: -> game.swap()
     escape: -> process.exit()
     q: -> process.exit()
   ui = new MainUI
