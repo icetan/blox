@@ -6,25 +6,33 @@ brokenLine = ->
   l = [1,1,1,1,1,1,1,1,1,1]
   l[Math.round Math.random() * (l.length-1)] = 0
   l
-jPice = -> [ [1,1,1]
+jPice = -> [ [0,0,0]
+           , [1,1,1]
            , [0,0,1] ]
-lPice = -> [ [2,2,2]
+lPice = -> [ [0,0,0]
+           , [2,2,2]
            , [2,0,0] ]
 oPice = -> [ [3,3]
            , [3,3] ]
-iPice = -> [ [4,4,4,4] ]
+iPice = -> [ [0,0,0,0]
+           , [4,4,4,4]
+           , [0,0,0,0]
+           , [0,0,0,0] ]
 zPice = -> [ [5,5,0]
-           , [0,5,5] ]
+           , [0,5,5]
+           , [0,0,0] ]
 sPice = -> [ [0,6,6]
-           , [6,6,0] ]
-tPice = -> [ [7,7,7]
+           , [6,6,0]
+           , [0,0,0] ]
+tPice = -> [ [0,0,0]
+           , [7,7,7]
            , [0,7,0] ]
 pices = [ jPice, lPice, oPice, iPice, zPice, sPice, tPice ]
 
 matrixCollision = (m1, m2, offset) ->
   for row, y in m2
     for cell, x in row when cell isnt 0
-      if m1[offset.y + y][offset.x + x] isnt 0
+      if m1[offset.y + y]?[offset.x + x] isnt 0
         return true
   false
 
@@ -37,6 +45,18 @@ rotateMatrix = (matrix) ->
   for x in [0..matrix[0].length-1]
     (matrix[y][x] for y in [matrix.length-1..0])
 
+matrixBounds = (matrix, offset) ->
+  width = matrix[0].length
+  height = matrix.length
+  halfWidth = Math.round width/2
+  halfHeight = Math.round height/2
+  w: offset.x - halfWidth
+  n: offset.y - halfHeight
+  e: offset.x + width - halfWidth
+  s: offset.y + height - halfHeight
+  width: width
+  height: height
+
 
 class Pice
   @random: -> new Pice pices[Math.round Math.random() * (pices.length-1)]()
@@ -47,20 +67,13 @@ class Pice
 
   reset: ->
     @_matrix = @_origMatrix
-    @position = x: 4, y: 0
+    @position = x: 5, y: 2
 
   rotate: ->
     @_matrix = rotateMatrix @_matrix
 
   getBounds: ->
-    width = @_matrix[0].length
-    height = @_matrix.length
-    w: @position.x
-    n: @position.y
-    e: @position.x + width
-    s: @position.y + height
-    width: width
-    height: height
+    matrixBounds @_matrix, @position
 
 
 class Game extends EventEmitter
@@ -96,7 +109,8 @@ class Game extends EventEmitter
 
   _nextPice: ->
     if @_pice?
-      addToMatrix @_field, @_pice._matrix, @_pice.position
+      bb = @_pice.getBounds()
+      addToMatrix @_field, @_pice._matrix, {x:bb.w, y:bb.n}
       @_checkLines()
     @emit 'change', @_field
     @_addPice()
@@ -110,11 +124,7 @@ class Game extends EventEmitter
   
   _collision: (offset) ->
     bb = @_pice.getBounds()
-    if bb.s + offset.y > @_field.length
-      true
-    else
-      matrixCollision @_field, @_pice._matrix
-      , {x:bb.w+offset.x, y:bb.n+offset.y}
+    matrixCollision @_field, @_pice._matrix, {x:bb.w+offset.x, y:bb.n+offset.y}
 
   _moveX: (move) ->
     if not @_collision {x:move, y:0}
@@ -140,7 +150,8 @@ class Game extends EventEmitter
   rotate: ->
     (return) if not @running
     matrix = rotateMatrix @_pice._matrix
-    if not matrixCollision @_field, matrix, @_pice.position
+    bb = matrixBounds matrix, @_pice.position
+    if not matrixCollision @_field, matrix, {x:bb.w, y:bb.n}
       @_pice._matrix = matrix
       @_draw()
 
@@ -181,7 +192,8 @@ class Game extends EventEmitter
 
   _draw: ->
     field = @getField()
-    addToMatrix field, @_pice._matrix, @_pice.position
+    bb = @_pice.getBounds()
+    addToMatrix field, @_pice._matrix, {x:bb.w, y:bb.n}
     @emit 'draw', field
 
 module.exports =
