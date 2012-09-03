@@ -1,7 +1,7 @@
 {
-  "name": "blocks"
+  "name": "blox"
   ,"version": "0.0.1"
-  ,"description": "Multiplayer Tetris"
+  ,"description": "Multiplayer Tetris type game"
   ,"author": "Christopher Fredén <c.freden@gmail.com>"
   ,"repository": {
     "type": "git"
@@ -12,15 +12,12 @@
     ,"socket.io": "*"
     ,"socket.io-client": "*"
   }
-  ,"engines": {
-    "node": "0.6.x"
-  }
   ,"files": ["bin/", "lib/"]
   ,"bin": {
-    "blocks": "./bin/blocks"
-    ,"blocks-server": "./bin/blocks-server"
+    "blox": "./bin/blox"
+    ,"blox-server": "./bin/blox-server"
   }
   ,"scripts": {
-    "start": "./bin/blocks-server"
+    "start": "./bin/blox-server"
   }
 }
