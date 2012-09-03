@@ -1,6 +1,6 @@
 {
   "name": "blox"
-  ,"version": "0.0.1"
+  ,"version": "0.0.2"
   ,"description": "Multiplayer Tetris type game"
   ,"author": "Christopher Fredén <c.freden@gmail.com>"
   ,"repository": {
@@ -9,6 +9,7 @@
   }
   ,"dependencies": {
     "coffee-script": "*"
+    ,"keypress": "*"
     ,"socket.io": "*"
     ,"socket.io-client": "*"
   }

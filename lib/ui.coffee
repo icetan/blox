@@ -1,6 +1,4 @@
 EventEmitter = require('events').EventEmitter
-readline = require 'readline'
-tty = require 'tty'
 
 ansi = require './ansi'
 {HandlerMixIn} = require './util'
@@ -69,9 +67,10 @@ class GameUI extends HandlerMixIn
 
 class Input extends EventEmitter
   constructor: ->
-    rint = readline.createInterface process.stdin, {}
-    rint.input.on 'keypress', (char, key) =>
+    require('keypress') process.stdin
+    process.stdin.on 'keypress', (ch, key) =>
       @emit key.name if key?
-    tty.setRawMode true
+    process.stdin.setRawMode true
+    process.stdin.resume()
 
 module.exports = {MainUI, GameUI, Input}
