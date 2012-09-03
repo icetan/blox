@@ -5,7 +5,7 @@
   ,"author": "Christopher Fredén <c.freden@gmail.com>"
   ,"repository": {
     "type": "git"
-    ,"url": "ssh://offther.ec/var/git/tetris"
+    ,"url": "git://github.com/icetan/blox.git"
   }
   ,"dependencies": {
     "coffee-script": "*"
