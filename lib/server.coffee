@@ -1,13 +1,13 @@
 socketIO = require 'socket.io'
 
 class Server
-  constructor: (port) ->
+  constructor: (port, debug) ->
     @playerCount = 0
     @playersLeft = []
     @players = {}
-    @io = socketIO.listen port
+    @io = socketIO.listen port, log:debug or false
     @_initListeners()
-  
+
   _initListeners: ->
     @io.sockets.on 'connection', (socket) =>
       for nick, field of @players
@@ -47,7 +47,7 @@ class Server
     if @playersLeft.length is 1
       @gameWonBy @playersLeft[0]
       setTimeout (=> @newGame()), 3000
-  
+
   gameWonBy: (nick) ->
     @io.sockets.emit 'game won by', nick
 
@@ -58,7 +58,7 @@ class Server
 
 module.exports = {
   Server,
-  listen: (port) -> new Server port
+  listen: (port, debug) -> new Server port, debug
 }
 
 if require.main is module
