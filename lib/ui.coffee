@@ -61,8 +61,9 @@ class GameUI extends HandlerMixIn
             '                    '
             '                    '
             '--------------------' ], 0, 0
-    @draw ["#{@game.score or 1337} @ #{@game.level or 666}"], 1, 0
-    @draw pice[0], 1, 1
+    # TODO: Add score and level print outs.
+    #@draw ["#{@game.score or 1337} @ #{@game.level or 666}"], 1, 0
+    @draw pice[0], 0, 0
 
 
 class Input extends EventEmitter
