@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// -*- js -*-
 
 require('coffee-script');
 var server = require('../lib/server');

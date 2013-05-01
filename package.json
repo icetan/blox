@@ -1,24 +1,24 @@
 {
-  "name": "blox"
-  ,"version": "0.0.2"
-  ,"description": "Multiplayer Tetris type game"
-  ,"author": "Christopher Fredén <c.freden@gmail.com>"
-  ,"repository": {
-    "type": "git"
-    ,"url": "git://github.com/icetan/blox.git"
-  }
-  ,"dependencies": {
-    "coffee-script": "*"
-    ,"keypress": "*"
-    ,"socket.io": "*"
-    ,"socket.io-client": "*"
-  }
-  ,"files": ["bin/", "lib/"]
-  ,"bin": {
-    "blox": "./bin/blox"
-    ,"blox-server": "./bin/blox-server"
-  }
-  ,"scripts": {
-    "start": "./bin/blox-server"
+  "name": "blox",
+  "version": "0.0.2",
+  "description": "Multiplayer Tetris type game",
+  "author": "Christopher Fredén <c.freden@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/icetan/blox.git"
+  },
+  "dependencies": {
+    "coffee-script": "*",
+    "keypress": "*",
+    "socket.io": "*",
+    "socket.io-client": "*"
+  },
+  "files": ["bin/", "lib/", "README.md"],
+  "bin": {
+    "blox": "bin/blox.js",
+    "blox-server": "bin/blox-server.js"
+  },
+  "scripts": {
+    "start": "bin/blox-server"
   }
 }

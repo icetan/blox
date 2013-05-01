@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-// -*- js -*-
-
-require('coffee-script');
-var blox = require('../lib/blox');
-
-blox(process.argv[2], process.argv[3])

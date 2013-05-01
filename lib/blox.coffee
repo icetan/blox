@@ -4,9 +4,9 @@ Client = require './client'
 
 start = (nick, addr) ->
   if not addr?
-    # if no URL is given, start a server
+    # if no host address is given, start a server
     server = require('./server').listen 13337
-    addr = 'localhost'
+    addr = 'localhost:13337'
   game = new Game
   keys =
     s: -> server?.newGame()
@@ -26,7 +26,7 @@ start = (nick, addr) ->
   ui = new MainUI
   ui.addGame game
 
-  client = new Client nick, game, "http://#{addr}:13337"
+  client = new Client nick, game, "http://#{addr}"
   client.on 'new player', (remote) ->
     ui.addGame remote
   client.on 'player left', (remote) ->
