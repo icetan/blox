@@ -1,6 +1,6 @@
 {
   "name": "blox",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Multiplayer Tetris type game",
   "author": "Christopher Fredén <c.freden@gmail.com>",
   "repository": {
