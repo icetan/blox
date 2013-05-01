@@ -3,6 +3,15 @@ blox
 
 *A terminal based multi player tetris clone.*
 
+install
+-------
+
+Install Node.js and run the following in your terminal.
+
+```
+$ npm install -g blox
+```
+
 start
 -----
 
