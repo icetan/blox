@@ -21,7 +21,7 @@
     "blox-server": "bin/blox-server.js"
   },
   "scripts": {
-    "prepublish": "coffee -c lib",
+    "prepublish": "coffee -co lib coffee",
     "start": "bin/blox-server"
   }
 }
