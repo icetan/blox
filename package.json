@@ -1,6 +1,6 @@
 {
   "name": "blox",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Multiplayer Tetris type game",
   "author": "Christopher Fredén <c.freden@gmail.com>",
   "repository": {
@@ -15,7 +15,11 @@
   "devDependencies": {
     "coffee-script": "*"
   },
-  "files": ["bin/", "lib/", "README.md"],
+  "files": [
+    "bin/",
+    "lib/",
+    "README.md"
+  ],
   "bin": {
     "blox": "bin/blox.js",
     "blox-server": "bin/blox-server.js"
