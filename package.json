@@ -8,10 +8,12 @@
     "url": "git://github.com/icetan/blox.git"
   },
   "dependencies": {
-    "coffee-script": "*",
     "keypress": "*",
     "socket.io": "*",
     "socket.io-client": "*"
+  },
+  "devDependencies": {
+    "coffee-script": "*"
   },
   "files": ["bin/", "lib/", "README.md"],
   "bin": {
@@ -19,6 +21,7 @@
     "blox-server": "bin/blox-server.js"
   },
   "scripts": {
+    "prepublish": "coffee -c lib",
     "start": "bin/blox-server"
   }
 }

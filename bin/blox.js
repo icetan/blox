@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('coffee-script');
 var blox = require('../lib/blox'),
     addr = process.argv[3];
 
