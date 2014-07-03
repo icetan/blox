@@ -20,27 +20,27 @@ class Server
         else
           @players[nick] = field
           was = @playerCount++
-          socket.set 'nick', nick, =>
-            socket.broadcast.emit 'new player', data
-            @newGame() if was < 2 and @playerCount >= 2
+        socket.nick = nick
+        socket.broadcast.emit 'new player', data
+        @newGame() if was < 2 and @playerCount >= 2
       socket.on 'change', (field) =>
-        socket.get 'nick', (err, nick) =>
-          @players[nick] = field
-          socket.broadcast.emit 'change', nick, field
+        nick = socket.nick
+        @players[nick] = field
+        socket.broadcast.emit 'change', nick, field
       socket.on 'game over', =>
-        socket.get 'nick', (err, nick) =>
-          socket.broadcast.emit 'game over', nick
-          @playerLost nick
+        nick = socket.nick
+        socket.broadcast.emit 'game over', nick
+        @playerLost nick
       socket.on 'clear', (lines) ->
-        socket.get 'nick', (err, nick) ->
-          socket.broadcast.emit 'clear', nick, lines
+        nick = socket.nick
+        socket.broadcast.emit 'clear', nick, lines
       socket.on 'disconnect', =>
-        socket.get 'nick', (err, nick) =>
-          if nick?
-            @playerCount--
-            delete @players[nick]
-            socket.broadcast.emit 'player left', nick
-            @playerLost nick
+        nick = socket.nick
+        if nick?
+          @playerCount--
+          delete @players[nick]
+          socket.broadcast.emit 'player left', nick
+          @playerLost nick
 
   playerLost: (nick) ->
     @playersLeft.splice @playersLeft.indexOf(nick), 1
